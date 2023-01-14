@@ -57,3 +57,11 @@ module.exports.signOut = (req, res, next) => {
   res.clearCookie('jwt').send({ message: 'You are logout!' })
     .catch(next);
 };
+
+// get user
+module.exports.getUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => new Error('User is not found'))
+    .then((user) => res.send(user))
+    .catch(next);
+};

@@ -2,6 +2,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const Unauthorized = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const { JWT_SECRET } = process.env;
 
@@ -19,9 +23,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(err);
+        next(new BadRequestError('Incorrect data entered'));
       } else if (err.code === 11000) {
-        next(err);
+        next(new ConflictError(`${email} is already in use`));
       } else {
         next(err);
       }
@@ -46,7 +50,7 @@ module.exports.login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === 'IncorrectEmail') {
-        return next(err);
+        return next(new Unauthorized('Wrong email or password!'));
       }
       next(err);
     });
@@ -60,8 +64,30 @@ module.exports.signOut = (req, res, next) => {
 
 // get user
 module.exports.getUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(() => new Error('User is not found'))
+  User.findById(req.auth._id)
+    .orFail(() => new NotFoundError('User is not found'))
     .then((user) => res.send(user))
     .catch(next);
+};
+
+module.exports.updateUser = (req, res, next) => {
+  const { name, email } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, email },
+    { new: true, runValidators: true },
+  )
+    .orFail(() => new NotFoundError('Not found'))
+    .then((user) => {
+      res.send({
+        name, email, _id: user._id,
+      });
+    })
+    .catch((err) => {
+      if ((err.name === 'ValidationError') || (err.name === 'CastError')) {
+        next(new BadRequestError('Incorrect data entered'));
+      } else {
+        next(err);
+      }
+    });
 };

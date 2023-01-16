@@ -44,7 +44,7 @@ module.exports.login = (req, res, next) => {
         expires: new Date(Date.now() + 12 * 3600000),
         httpOnly: true,
         sameSite: 'None',
-        secure: true,
+        // secure: true,
       });
       res.send({ message: 'Authorization was successful!' });
     })
@@ -64,7 +64,7 @@ module.exports.signOut = (req, res, next) => {
 
 // get user
 module.exports.getUser = (req, res, next) => {
-  User.findById(req.auth._id)
+  User.findById(req.user._id)
     .orFail(() => new NotFoundError('User is not found'))
     .then((user) => res.send(user))
     .catch(next);
@@ -90,4 +90,25 @@ module.exports.updateUser = (req, res, next) => {
         next(err);
       }
     });
+};
+
+module.exports.getUserId = (req, res, next) => {
+  User.findById(req.params.userId)
+    .orFail(() => new NotFoundError('User is not found'))
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Incorrect data entered'));
+      } else {
+        next(err);
+      }
+    });
+};
+
+module.exports.getAllUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send(users))
+    .catch(next);
 };

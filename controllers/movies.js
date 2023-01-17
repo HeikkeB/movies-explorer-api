@@ -42,8 +42,8 @@ module.exports.createMovie = (req, res, next) => {
 };
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
-    .then((movie) => res.send(movie))
+  Movie.find({ owner: req.user._id })
+    .then((movies) => res.send(movies))
     .catch(next);
 };
 
@@ -57,7 +57,7 @@ module.exports.removeMovie = (req, res, next) => {
         throw new ForbiddenError('Cannot be removed');
       }
       movie.remove()
-        .then(() => res.send(movie))
+        .then(() => res.send('Movie removed'))
         .catch(next);
     })
     .catch((err) => {

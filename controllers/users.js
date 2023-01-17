@@ -91,24 +91,3 @@ module.exports.updateUser = (req, res, next) => {
       }
     });
 };
-
-module.exports.getUserId = (req, res, next) => {
-  User.findById(req.params.userId)
-    .orFail(() => new NotFoundError('User is not found'))
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Incorrect data entered'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-module.exports.getAllUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch(next);
-};

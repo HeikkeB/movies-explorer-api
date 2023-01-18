@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const { ServerError } = require('./errors/ServerError');
 const { limiter } = require('./middlewares/limiter');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -22,6 +23,21 @@ app.use(express.json());
 // parser
 app.use(cookieParser());
 app.use(bodyParser.json());
+
+// CORS
+const options = {
+  origin: [
+    'http://movies-searcher.nomoredomains.rocks',
+    'https://movies-searcher.nomoredomains.rocks',
+    'http://localhost:3001',
+    'http://localhost:3000',
+  ],
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'origin'],
+  credentials: true,
+};
+
+app.use('*', cors(options));
 
 // protection
 app.use(helmet());

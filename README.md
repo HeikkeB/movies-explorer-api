@@ -1,10 +1,10 @@
 # movies-searcher-api
 
-* IP 84.252.143.114
+* IP 158.160.26.119
 
-* [BACKEND](https://api.mymesto.nomoredomains.club/)
+* [BACKEND](https://api.movies-searcher.nomoredomains.rocks/)
 
-* [GitHub](https://github.com/HeikkeB/react-mesto-api-full)
+* [GitHub](https://github.com/HeikkeB/movies-explorer-api/tree/level-1)
 
 ## USED TECHOLOGY
 

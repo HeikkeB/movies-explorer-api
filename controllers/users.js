@@ -1,12 +1,15 @@
-/* eslint-disable consistent-return */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
-const Unauthorized = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
-const { JWT_SECRET_DEV } = require('../utils/constants');
+const {
+  JWT_SECRET_DEV,
+  BAD_REQUEST_MESSAGE,
+  CONFLICT_MESSAGE,
+  NOTFOUND_MESSAGE,
+} = require('../utils/constants');
 
 const { JWT_SECRET, NODE_ENV } = process.env;
 
@@ -24,9 +27,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Incorrect data entered'));
+        next(new BadRequestError(BAD_REQUEST_MESSAGE));
       } else if (err.code === 11000) {
-        next(new ConflictError(`${email} is already in use`));
+        next(new ConflictError(`${email} ${CONFLICT_MESSAGE}`));
       } else {
         next(err);
       }
@@ -45,28 +48,21 @@ module.exports.login = (req, res, next) => {
         expires: new Date(Date.now() + 12 * 3600000),
         httpOnly: true,
         sameSite: 'None',
-        // secure: true,
       });
       res.send({ message: 'Authorization was successful!' });
     })
-    .catch((err) => {
-      if (err.message === 'IncorrectEmail') {
-        return next(new Unauthorized('Wrong email or password!'));
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 // signout
-module.exports.signOut = (req, res, next) => {
-  res.clearCookie('jwt').send({ message: 'You are logout!' })
-    .catch(next);
+module.exports.signOut = (req, res) => {
+  res.clearCookie('jwt').send({ message: 'You are logout!' });
 };
 
 // get user
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => new NotFoundError('User is not found'))
+    .orFail(() => new NotFoundError(NOTFOUND_MESSAGE))
     .then((user) => res.send(user))
     .catch(next);
 };
@@ -78,7 +74,7 @@ module.exports.updateUser = (req, res, next) => {
     { name, email },
     { new: true, runValidators: true },
   )
-    .orFail(() => new NotFoundError('Not found'))
+    .orFail(() => new NotFoundError(NOTFOUND_MESSAGE))
     .then((user) => {
       res.send({
         name, email, _id: user._id,
@@ -86,7 +82,7 @@ module.exports.updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if ((err.name === 'ValidationError') || (err.name === 'CastError')) {
-        next(new BadRequestError('Incorrect data entered'));
+        next(new BadRequestError(BAD_REQUEST_MESSAGE));
       } else {
         next(err);
       }

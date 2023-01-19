@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable import/no-extraneous-dependencies */
 require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
@@ -39,12 +37,12 @@ const options = {
 
 app.use('*', cors(options));
 
+// requests logger
+app.use(requestLogger);
+
 // protection
 app.use(helmet());
 app.use(limiter);
-
-// requests logger
-app.use(requestLogger);
 
 // routes
 app.use(router);

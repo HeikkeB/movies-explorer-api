@@ -48,6 +48,7 @@ module.exports.login = (req, res, next) => {
         expires: new Date(Date.now() + 12 * 3600000),
         httpOnly: true,
         sameSite: 'None',
+        secure: true,
       });
       res.send({ message: 'Authorization was successful!' });
     })

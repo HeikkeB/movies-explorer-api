@@ -25,8 +25,8 @@ app.use(bodyParser.json());
 // CORS
 const options = {
   origin: [
-    // 'http://movies-searcher.nomoredomains.rocks',
-    // 'https://movies-searcher.nomoredomains.rocks',
+    'http://movies-searcher.nomoredomains.rocks',
+    'https://movies-searcher.nomoredomains.rocks',
     'http://localhost:3001',
     'http://localhost:3000',
   ],
